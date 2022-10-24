@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Donation;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
     public function create()
     {
-        return view('volunteers.register');
     }
 
     /**
@@ -22,27 +23,19 @@ class UserController extends Controller
     //create new user 
     public function store(Request $request)
     {
-        $formFields = $request->validate(
-            [
-                'name' => ['required', 'min:3'],
-                'email' => ['required', 'email', Rule::unique('users', 'email')],
-                'password' => 'required|confirmed|min:6'
-            ]
-        );
+    }
 
-        //hash password
-        $formFields['password'] = bcrypt($formFields['password']);
+    public function view()
+    {
+        $allUsers = user::all();
+        return view('dashboard.users', ['allUsers' => $allUsers]);
+    }
 
+    public function destroy($id)
+    {
+        $user = User::find($id);
 
-        //create user
-        $user = User::create($formFields);
-
-        // /auto log
-        auth()->login($user);
-
-        return redirect('/');
-        // ->with
-        //     ('message', 'User created and logged in');
-
+        $user->delete();
+        return back();
     }
 }

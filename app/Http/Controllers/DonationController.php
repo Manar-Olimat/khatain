@@ -14,7 +14,12 @@ class DonationController extends Controller
      */
     public function index()
     {
-        //
+        $Donations = Donation::all();
+        $data = [
+            'name' => 'Donation',
+            'Donation' => $Donations
+        ];
+        return view('Donat.layout', $data);
     }
 
     /**
@@ -27,6 +32,32 @@ class DonationController extends Controller
         //
     }
 
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Models\Donation  $donation
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Request $request)
+    {
+
+        // dd($request->name);
+        if ($request !== null) {
+            return view(
+                'donate',
+                [
+                    'fields' => $request
+                ]
+            );
+        }
+        return view('donate');
+    }
+
+    public function showWithGet()
+    {
+        return view('donate');
+    }
     /**
      * Store a newly created resource in storage.
      *
@@ -35,18 +66,25 @@ class DonationController extends Controller
      */
     public function store(Request $request)
     {
-        //
-    }
+        $formfiled =  $request->validate(
+            [
+                'name' => ['required', 'min:3'],
+                'email' => ['required', 'email'],
+                'amount' => ['required', 'numeric', 'min:1'],
+                'card' => ['required', 'numeric', 'min:16']
+            ]
+        );
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Donation  $donation
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Donation $donation)
-    {
-        //
+        //store data -> ask for visa if true create record else redirect back
+        Donation::create($formfiled);
+        // session()->flash('message',
+        // 'تم استقبال تبرعك.
+        // جزاك الله خيراً');
+        return redirect('/');
+        
+        // ->with('message',
+        // 'تم استقبال تبرعك.
+        // جزاك الله خيراً');
     }
 
     /**
@@ -81,5 +119,11 @@ class DonationController extends Controller
     public function destroy(Donation $donation)
     {
         //
+    }
+
+    public function view()
+    {
+        $allDonations = Donation::all();
+        return view('dashboard.index', ['allDonations' => $allDonations]);
     }
 }
